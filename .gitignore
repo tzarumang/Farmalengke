@@ -1,0 +1,55 @@
+# Operating system
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+
+# Build output
+build/
+dist/
+out/
+target/
+
+# Dependencies
+node_modules/
+vendor/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Coverage and test output
+coverage/
+.coverage
+htmlcov/
+
+# Local data — keep raw datasets out of the repository unless deliberately added
+data/local/
+*.sqlite
+*.sqlite3
+*.db
