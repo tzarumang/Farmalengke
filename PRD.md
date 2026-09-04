@@ -596,7 +596,7 @@ the legal position is settled risks writing a system that cannot lawfully be ope
 
 ## 15. Approvals
 
-_See the sign-off log (`signoff-log-farmalengke.md`). Baseline v1.0 is set at the Final
+_See the sign-off log ([`docs/prd/SIGNOFF-LOG.md`](docs/prd/SIGNOFF-LOG.md)). Baseline v1.0 is set at the Final
 PRD approval; change control applies thereafter._
 
 **This PRD is not yet baselined.** Gate 1 cannot be signed until Q12 names the approver,
