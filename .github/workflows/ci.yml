@@ -26,7 +26,10 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      # `npm ci` runs an audit by default (`npm config get audit` is true), which
+      # means an npm advisory-service outage can wedge this job even though it has
+      # nothing to do with auditing. Dependency auditing lives in its own workflow.
+      - run: npm ci --no-audit
 
       - name: Typecheck
         run: npm run typecheck
@@ -106,23 +109,3 @@ jobs:
           fi
 
           echo "No committed secrets found."
-
-  audit:
-    name: Dependency audit
-    runs-on: ubuntu-latest
-    # A hang here previously wedged the job for hours. Bound it so a stuck
-    # registry call fails visibly and fast instead of blocking the PR silently.
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      # No `npm ci` here on purpose. `npm audit` resolves the dependency tree
-      # from package-lock.json, so installing node_modules first is wasted work —
-      # and it was the step that hung, twice. Auditing the lockfile covers the
-      # same dependency set, which is what we actually want to assert.
-      #
-      # Fails the build on a high or critical advisory in runtime dependencies.
-      - run: npm audit --package-lock-only --audit-level=high --omit=dev
