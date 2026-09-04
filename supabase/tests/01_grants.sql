@@ -41,3 +41,13 @@ grant execute on function public.refresh_order_status(uuid) to authenticated;
 grant execute on function public.expire_lapsed_reservations() to authenticated;
 
 revoke update, delete on public.platform_prices from anon, authenticated;
+
+-- M2 slice 3.
+grant select, insert, update, delete on public.kyc_tier_requirements to authenticated;
+grant select, insert, update, delete on public.kyc_submissions       to authenticated;
+grant select, insert, update, delete on public.kyc_documents         to authenticated;
+
+grant execute on function public.kyc_ceiling_breach(uuid, numeric) to authenticated;
+grant execute on function public.transacted_last_30_days(uuid) to authenticated;
+grant execute on function public.submit_kyc(uuid) to authenticated;
+grant execute on function public.review_kyc(uuid, boolean, text) to authenticated;

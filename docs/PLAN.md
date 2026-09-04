@@ -3,26 +3,23 @@
 Working plan for delivery. The authoritative scope is [`PRD.md`](../PRD.md); this tracks
 what is being built right now and what comes next.
 
-## Now (this slice) — M2 slice 2: pricing, browse and orders
+## Now (this slice) — M2 slice 3: tiered verification
 
-**Done = the trading desk publishes a price, a farmer sees it and prices their own
-produce, a buyer finds and orders it, and each farmer confirms their own part.**
+**Done = a farmer sends what they have, compliance decides with their name on it,
+and the tier that decision grants is what the transaction ceilings enforce.**
 
-- [x] Platform buying prices (FR-9) — per commodity, grade and region, schedulable
-      ahead, append-only, every publication attributed
-- [x] Farmer price view (FR-6) — current bid, 7-day range, source and timestamp on
-      every figure, stale after 48 hours
-- [x] Asking price on listings (FR-5 as amended) — a draft may be unpriced, an
-      offer may not
-- [x] Buyer browse with filters (FR-7)
-- [x] Orders (FR-8) — reservation, double-sell prevention, per-farmer confirmation,
-      lapsing when unanswered
-- [x] 31 further database assertions; 81 in total
+- [x] Tiered KYC (FR-2) — tier 1 asks for a photograph, tier 2 for a government
+      ID and a selfie, with the requirements held as data so the interface and
+      the completeness check read the same list
+- [x] Identity documents in a private bucket, readable only by their subject and
+      compliance, with signed URLs that expire in 60 seconds
+- [x] Per-transaction **and** rolling 30-day ceilings, enforced on both sides of a
+      trade: the buyer when they place, the farmer when they accept
+- [x] Every decision timestamped and attributable; a rejection must say why
+- [x] 35 further database assertions; 116 in total
 
 ## Next (ordered backlog)
 
-- [ ] **M2 slice 3 — tiered KYC.** FR-2. Thresholds come from the Q6 legal opinion,
-      so the tiers are built but the numbers stay configuration
 - [ ] **M2 slice 4 — cooperative accounts.** FR-4: group registration, member
       invitations, consolidated listings
 - [ ] **M3 — Bagsakan operations.** Intake, grading, inventory, write-off
@@ -30,14 +27,19 @@ produce, a buyer finds and orders it, and each farmer confirms their own part.**
 - [ ] **M5 — Logistics.** Provider onboarding, job assignment, tracking, proof of
       delivery (FR-17 to FR-20)
 
-### Carried from this slice
+### Carried forward
 
-- [ ] **Schedule the lapse sweep.** `expire_lapsed_reservations()` is called
-      opportunistically before reads, so nothing ever *displays* as pending past its
-      deadline. A deployed instance should also run it on a schedule (pg_cron) so
-      listings free up without waiting for someone to look
-- [ ] **Notify farmers of a reservation.** FR-8 says the farmer "is notified"; today
-      they see it on the orders page. SMS or push needs the provider decision in Q8
+- [ ] **The KYC ceilings are placeholders.** Every threshold is a `platform_settings`
+      row pending the Q6 legal opinion, so answering Q6 is a configuration change
+      rather than a migration — but until it is answered the numbers are ours, not
+      counsel's
+- [ ] **Nobody is told their application was decided.** They see it on the
+      verification page; a message needs the Q8 provider decision, same as FR-8
+- [ ] **Document destruction is not scheduled.** §9 sets 5 years after the
+      relationship ends. Nothing deletes them yet, and holding biometric data past
+      its retention is itself a breach of the rule
+- [ ] **Schedule the lapse sweep** (from slice 2)
+- [ ] **Notify farmers of a reservation** (from slice 2)
 - [ ] **Partial reservation**, if the pilot shows whole-listing is too coarse
 
 ## Blocked
@@ -65,6 +67,8 @@ produce, a buyer finds and orders it, and each farmer confirms their own part.**
 | Vault seam | M1 defines *who* may act and records *what* they did; it holds no funds | Building custody before the legal opinion (Q6) risks an unusable system |
 | Regions | Both Cordillera and Central Luzon | Client answer to Q10. Widens PRD §6, which scopes the MVP to one region — see the note below |
 | Commodities | Nine, seeded as reference rows rather than an enum | Changing the set is a data change, not a migration |
+| KYC documents | Stored by us, in a private bucket, with a provider seam | Client decision. `kyc_documents.storage_path` is nullable so a verification provider can hold the images later without a schema change |
+| Ceilings | Per transaction **and** rolling 30 days | A per-transaction limit alone is defeated by splitting one payment into several |
 | Order price | The farmer's asking price, not the platform's published price | Client decision D5. FR-5 amended to carry a price |
 | Reservation | Whole-listing | FR-8 aggregates listings rather than splitting them; partial reservation needs quantity bookkeeping this slice does not have |
 | Order write path | `place_order()` and `respond_to_order_line()` are SECURITY DEFINER; the tables carry no write policy | The reservation invariants span several statements, so the function is the only way in and owns the authorisation it bypasses |

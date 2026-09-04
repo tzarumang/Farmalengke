@@ -23,12 +23,15 @@ insert into public.user_roles (user_id, role, granted_by) values
   ('bbbbbbbb-0000-0000-0000-000000000004', 'buyer',        null),
   ('bbbbbbbb-0000-0000-0000-000000000005', 'trading_desk', null);
 
-insert into public.profiles (id, mobile_number, display_name) values
-  ('bbbbbbbb-0000-0000-0000-000000000001', '+639172220001', 'Farmer One'),
-  ('bbbbbbbb-0000-0000-0000-000000000002', '+639172220002', 'Farmer Two'),
-  ('bbbbbbbb-0000-0000-0000-000000000003', '+639172220003', 'Buyer One'),
-  ('bbbbbbbb-0000-0000-0000-000000000004', '+639172220004', 'Buyer Two'),
-  ('bbbbbbbb-0000-0000-0000-000000000005', '+639172220005', 'Trading Desk');
+-- Fully verified: this suite exercises order mechanics, and the KYC ceilings
+-- have their own suite. Leaving these at tier_0 would make every order fail for
+-- the wrong reason.
+insert into public.profiles (id, mobile_number, display_name, kyc_tier) values
+  ('bbbbbbbb-0000-0000-0000-000000000001', '+639172220001', 'Farmer One',   'tier_2'),
+  ('bbbbbbbb-0000-0000-0000-000000000002', '+639172220002', 'Farmer Two',   'tier_2'),
+  ('bbbbbbbb-0000-0000-0000-000000000003', '+639172220003', 'Buyer One',    'tier_2'),
+  ('bbbbbbbb-0000-0000-0000-000000000004', '+639172220004', 'Buyer Two',    'tier_2'),
+  ('bbbbbbbb-0000-0000-0000-000000000005', '+639172220005', 'Trading Desk', 'tier_2');
 
 insert into public.farms (id, farmer_id, name, region_code, barangay, city_municipality, province) values
   ('cccccccc-0000-0000-0000-000000000001', 'bbbbbbbb-0000-0000-0000-000000000001',
