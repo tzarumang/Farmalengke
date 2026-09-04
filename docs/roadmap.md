@@ -1,5 +1,14 @@
 # Roadmap
 
+> **Superseded.** This document was written before the scope was agreed, when the product
+> direction was still an open question. The authoritative plan is now [`PRD.md`](../PRD.md)
+> — scope in §6, milestones in §13. In particular, the "pick one thing" framing below was
+> resolved: Farmalengke builds the trading core (bagsakan intake, listings, orders,
+> settlement) as one connected MVP, because the pieces do not function separately.
+>
+> It is kept for the reasoning it records — the principles below still hold, and the open
+> questions it raised became `[NEEDS INPUT]` items in PRD §14.
+
 This document records what Farmalengke intends to build and in what order. It is a
 starting point for discussion, not a commitment — the scope should be settled by
 people who actually farm, and it will change.
