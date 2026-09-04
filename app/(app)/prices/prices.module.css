@@ -1,0 +1,21 @@
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  background: var(--color-surface);
+}
+
+.name { margin: 0 0 var(--space-2); font-size: var(--text-lg); }
+.secondary { font-weight: 400; color: var(--color-fg-muted); font-size: var(--text-base); }
+
+/* Money is the largest thing on the card, per the PRD design principles. */
+.price { margin: 0 0 var(--space-2); font-size: var(--text-2xl); font-weight: 700; }
+.perKg { font-size: var(--text-base); font-weight: 400; color: var(--color-fg-muted); }
+
+.range { margin: 0 0 var(--space-2); }
+
+.source { margin: 0; font-size: var(--text-sm); color: var(--color-fg-muted); }
+
+.noPrice { margin: 0; color: var(--color-fg-muted); }

@@ -190,14 +190,24 @@ _Each story carries acceptance criteria and the goal `(G#)` it serves._
 - **FR-5 (G1)** — **As a** farmer **I want** to list produce I have or expect to have
   **so that** the platform or a buyer can purchase it.
   - _Acceptance criteria:_ A listing captures commodity, variety, quantity with unit,
-    quality grade claimed, harvest or availability date, and location; a listing is either
-    *available now* or *expected* with a date; listings can be created offline and sync on
-    reconnection; a farmer can edit or withdraw a listing until it is committed to an order.
+    **the price the farmer is asking**, quality grade claimed, harvest or availability
+    date, and location; a listing is either *available now* or *expected* with a date; a
+    listing may be saved as a draft without a price but cannot be offered to buyers
+    without one; listings can be created offline and sync on reconnection; a farmer can
+    edit or withdraw a listing until it is committed to an order.
+  - _Amended 2026-09-04 (see D5)._ The original criteria captured no price. The client
+    decided a marketplace order transacts at the farmer's asking price, so the field is
+    part of FR-5 rather than of the order.
 - **FR-6 (G1)** — **As a** farmer **I want** to see the current platform buying price and
   recent market prices for my commodity **so that** I can judge whether to sell now.
   - _Acceptance criteria:_ Price view shows the platform's current bid, the 7-day price
     range, and the source and timestamp of each figure; no price is displayed without its
     source; prices older than 48 hours are visibly marked stale.
+  - _Partially delivered._ "Recent market prices" currently means the platform's own
+    published history, which is the only series that can be attributed today. External
+    sources (DA, other trading posts) are an integration listed in §10; until one exists,
+    showing an outside figure would mean showing a number we cannot source, which the same
+    criterion forbids.
 - **FR-7 (G3)** — **As a** buyer **I want** to browse and filter available produce **so
   that** I can find the volume and quality I need.
   - _Acceptance criteria:_ Filter by commodity, grade, quantity, location, and
@@ -206,14 +216,25 @@ _Each story carries acceptance criteria and the goal `(G#)` it serves._
 - **FR-8 (G3)** — **As a** buyer **I want** to place an order against one or more listings
   **so that** I can secure supply.
   - _Acceptance criteria:_ An order aggregates one or more listings; placing it reserves
-    the quantity and prevents double-selling; the order states total price, delivery date,
-    and delivery location; the farmer is notified and must confirm within a configurable
-    window (default 24 hours) or the reservation lapses.
+    the quantity and prevents double-selling; the order transacts at each listing's asking
+    price, captured at placement so a later change cannot restate it; the order states
+    total price, delivery date, and delivery location; **each farmer confirms their own
+    lines** — an order spanning three farmers is three decisions — within a configurable
+    window (default 24 hours), after which the reservation lapses and the listing returns
+    to the market.
+  - _Reservation is whole-listing._ FR-8 describes aggregating listings to reach a volume,
+    not splitting one, so a buyer takes a listing entirely or not at all. A farmer who
+    wants to sell in parts lists in parts. Partial reservation is a later change if the
+    pilot shows it is needed.
 - **FR-9 (G6)** — **As the** platform trading desk **I want** to set and publish buying
   prices per commodity and grade **so that** the platform buys at a margin it controls.
   - _Acceptance criteria:_ Prices set per commodity, grade, and bagsakan site, with an
     effective-from timestamp; a price change never retroactively alters a committed order;
     every price change is logged with the user who made it; prices can be scheduled ahead.
+  - _Scope note._ This is the price the platform pays as principal buyer, and the benchmark
+    a farmer judges their own asking price against (FR-6). It is **not** the price a
+    third-party marketplace order transacts at — that is the farmer's asking price (FR-5).
+    Bagsakan sites arrive at M3, so prices are currently keyed to region.
 
 ### 7.3 Forward contracts
 

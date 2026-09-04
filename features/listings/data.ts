@@ -11,6 +11,8 @@ interface ListingRow {
   quantity: string | number;
   unit_code: string;
   quantity_kg: string | number;
+  asking_price: string | number | null;
+  currency: string;
   claimed_grade: string | null;
   availability: Listing['availability'];
   available_from: string | null;
@@ -21,7 +23,7 @@ interface ListingRow {
 }
 
 const LISTING_COLUMNS = `
-  id, variety, quantity, unit_code, quantity_kg, claimed_grade,
+  id, variety, quantity, unit_code, quantity_kg, asking_price, currency, claimed_grade,
   availability, available_from, status, created_at,
   farms(name),
   commodities(name_en, name_fil)
@@ -37,6 +39,8 @@ function toListing(row: ListingRow): Listing {
     quantity: Number(row.quantity),
     unitCode: row.unit_code,
     quantityKg: Number(row.quantity_kg),
+    askingPrice: row.asking_price === null ? null : Number(row.asking_price),
+    currency: row.currency,
     claimedGrade: row.claimed_grade,
     availability: row.availability,
     availableFrom: row.available_from,

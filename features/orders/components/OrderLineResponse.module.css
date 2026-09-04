@@ -1,0 +1,9 @@
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+@media (max-width: 24rem) {
+  .actions { grid-template-columns: 1fr; }
+}

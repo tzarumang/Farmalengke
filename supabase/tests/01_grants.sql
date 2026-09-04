@@ -26,3 +26,18 @@ grant select, insert, update, delete on public.farm_crops         to authenticat
 grant select, insert, update, delete on public.produce_listings   to authenticated;
 
 grant execute on function public.commodity_unit_to_kg(uuid, text, text) to authenticated;
+
+-- M2 slice 2.
+grant select, insert, update, delete on public.platform_settings to authenticated;
+grant select, insert, update, delete on public.platform_prices   to authenticated;
+grant select, insert, update, delete on public.orders            to authenticated;
+grant select, insert, update, delete on public.order_lines       to authenticated;
+
+grant execute on function public.setting_int(text, int) to authenticated;
+grant execute on function public.current_platform_price(uuid, text, timestamptz) to authenticated;
+grant execute on function public.place_order(uuid[], date, text, text, text) to authenticated;
+grant execute on function public.respond_to_order_line(uuid, boolean) to authenticated;
+grant execute on function public.refresh_order_status(uuid) to authenticated;
+grant execute on function public.expire_lapsed_reservations() to authenticated;
+
+revoke update, delete on public.platform_prices from anon, authenticated;

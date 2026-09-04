@@ -41,6 +41,17 @@ export const listingInputSchema = z
 
     claimedGrade: z.string().trim().max(60).optional().or(z.literal('')),
 
+    // Per one unit of `unitCode`, so the farmer quotes in the terms they think
+    // in. The database derives a per-kilo figure for comparison.
+    askingPrice: z
+      .string()
+      .trim()
+      .optional()
+      .transform((v) => (v ? Number(v) : undefined))
+      .refine((v) => v === undefined || (Number.isFinite(v) && v > 0), {
+        message: 'Price must be a number greater than zero.',
+      }),
+
     availability: z.enum(LISTING_AVAILABILITY),
     availableFrom: z.string().trim().optional().or(z.literal('')),
 
@@ -49,6 +60,12 @@ export const listingInputSchema = z
   .refine((v) => v.availability !== 'expected' || Boolean(v.availableFrom), {
     message: 'Say roughly when it will be ready.',
     path: ['availableFrom'],
+  })
+  // A draft may be unpriced; an offer may not. The database enforces the same
+  // rule, so a request bypassing this schema still cannot offer a priceless lot.
+  .refine((v) => !v.publish || v.askingPrice !== undefined, {
+    message: 'Set a price before offering this to buyers.',
+    path: ['askingPrice'],
   });
 
 export type ListingInput = z.infer<typeof listingInputSchema>;
@@ -62,6 +79,8 @@ export interface Listing {
   quantity: number;
   unitCode: string;
   quantityKg: number;
+  askingPrice: number | null;
+  currency: string;
   claimedGrade: string | null;
   availability: (typeof LISTING_AVAILABILITY)[number];
   availableFrom: string | null;

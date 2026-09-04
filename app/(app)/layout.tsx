@@ -1,17 +1,37 @@
 import Link from 'next/link';
 
+import { getVerifiedRoles } from '@/features/profile/data';
+
 import styles from './app-shell.module.css';
 
 /**
- * The signed-in shell. Kept to three destinations: a farmer on a small screen
- * should be able to reach anything in one tap without a menu.
+ * The signed-in shell.
+ *
+ * Navigation is filtered by role so a farmer is not offered a market they cannot
+ * buy in, and a buyer is not offered farm records they do not have. This is
+ * courtesy, not security — every page verifies for itself, and the database
+ * refuses regardless.
  */
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const roles = await getVerifiedRoles();
+  const isFarmer = roles.includes('farmer') || roles.includes('coop_officer');
+  const canBuy =
+    roles.includes('buyer') || roles.includes('trading_desk') || roles.includes('admin');
+  const isTradingDesk = roles.includes('trading_desk') || roles.includes('admin');
+
   return (
     <>
       <nav className={styles.nav} aria-label="Main">
-        <Link href="/farms">Farms</Link>
-        <Link href="/listings">Produce</Link>
+        {isFarmer ? (
+          <>
+            <Link href="/farms">Farms</Link>
+            <Link href="/listings">Produce</Link>
+            <Link href="/prices">Prices</Link>
+          </>
+        ) : null}
+        {canBuy ? <Link href="/market">Market</Link> : null}
+        <Link href="/orders">Orders</Link>
+        {isTradingDesk ? <Link href="/trading/prices">Publish prices</Link> : null}
         <Link href="/profile">Profile</Link>
       </nav>
       {children}
