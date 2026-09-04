@@ -15,11 +15,13 @@ The first market is the Philippines, with the architecture prepared for later ex
 
 ## Status
 
-**Pre-alpha — no application code yet.** The requirements are drafted and the scope is
-agreed; implementation has not started.
+**Pre-alpha — M1 (foundation) is built; no trading features yet.** A farmer can sign up
+with a mobile number and manage their profile, on a schema where row-level security and
+an append-only audit trail are enforced by the database and covered by tests.
 
 The [PRD](PRD.md) is a **v0.1 draft, not a baseline**. Fifteen open questions remain, and
 one of them blocks the critical path — see [What has to happen first](#what-has-to-happen-first).
+Progress against the milestones is tracked in [`docs/PLAN.md`](docs/PLAN.md).
 
 ## The problem
 
@@ -133,20 +135,66 @@ Two open questions unblock the most: **Q12** (who has authority to sign off) and
 
 ```
 .
-├── PRD.md           The product requirements document (v0.1 draft)
+├── PRD.md              The product requirements document (v0.1 draft)
+├── app/                Next.js App Router — routes, layouts, loading/error states
+├── features/           Feature-scoped code (auth, profile): actions, data, schema
+│   └── */data.ts       Server-only data access — the only path to the database
+├── components/ui/      Shared primitives, styled from tokens
+├── lib/
+│   ├── supabase/       Server and browser clients
+│   └── config/         Validated, server-only configuration
+├── styles/             Design tokens and global CSS
+├── supabase/
+│   ├── migrations/     Tracked SQL — the source of truth for the schema
+│   └── tests/          Row-level security tests
+├── scripts/test-db.sh  Applies migrations and runs the RLS tests
 ├── docs/
-│   ├── prd/
-│   │   ├── PRD.pdf        Rendered PRD
-│   │   └── SIGNOFF-LOG.md Gate sign-offs and change control
-│   └── roadmap.md         Early direction notes (superseded by PRD §13)
-├── .github/         Issue and pull request templates
-├── CONTRIBUTING.md  How to propose changes
-├── CODE_OF_CONDUCT.md
-└── LICENSE          Apache License 2.0
+│   ├── PLAN.md         What is being built now, and what comes next
+│   ├── prd/            Rendered PRD and the gate sign-off log
+│   └── roadmap.md      Early direction notes (superseded by PRD §13)
+└── .github/            Issue and pull request templates, CI
 ```
 
-Source and test directories will be added at milestone M1 (foundation: schema, row-level
-security, auth, audit logging, CI).
+## Running it locally
+
+Requires Node 22+ and Docker (for the Supabase stack).
+
+```bash
+npm install
+cp .env.example .env.local     # fill in the values printed by `npm run db:start`
+npm run db:start               # starts the local Supabase stack
+npm run dev
+```
+
+Sign-in uses a phone OTP. The local stack does not send an SMS — it prints the code to
+the auth container log, so the real flow can be exercised without a paid SMS provider.
+
+### Verifying
+
+```bash
+npm run verify    # typecheck, lint, build
+npm run db:test   # applies migrations to a scratch database and runs the RLS tests
+```
+
+`db:test` needs only a PostgreSQL 15+ server, not Docker: it uses a shim that reproduces
+the parts of Supabase's `auth` schema the policies rely on. That keeps the security tests
+runnable anywhere, including CI.
+
+## Security posture
+
+Three things are load-bearing and worth knowing before changing anything:
+
+- **Row-level security is on every table**, with explicit per-operation policies. The
+  browser holds a publishable key whose safety rests entirely on those policies, not on
+  secrecy — so a table without RLS is a world-readable table.
+- **Roles live in the JWT**, injected by a database access-token hook and read from
+  `app_metadata`. Never authorize from `user_metadata`: the user can edit it.
+- **The audit log is append-only**, enforced by revoked grants, absent RLS write
+  policies, and a trigger — so it holds even against the table owner, not merely against
+  ordinary users. FR-28 requires records that no role can alter, administrators included.
+
+Both the policies and these guarantees are asserted in `supabase/tests/`, including
+negative cases. A policy nobody has attacked is only a policy you hope works.
 
 ## Contributing
 

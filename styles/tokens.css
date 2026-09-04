@@ -1,0 +1,81 @@
+/*
+ * Design tokens.
+ *
+ * No brand exists yet (PRD Q9), so these are deliberately neutral and accessible.
+ * Every value a component uses comes from here, which means adopting a real brand
+ * later is an edit to this file rather than a sweep through the components.
+ *
+ * Contrast: body text and interactive foregrounds meet WCAG 2.2 AA (>= 4.5:1)
+ * against their backgrounds in both schemes.
+ */
+:root {
+  color-scheme: light dark;
+
+  /* Neutrals */
+  --color-bg: #ffffff;
+  --color-surface: #f6f7f6;
+  --color-border: #d6dad6;
+  --color-fg: #14201a;
+  --color-fg-muted: #55605a;
+
+  /* Primary: a green that is not the "agritech green" cliché, and passes AA. */
+  --color-primary: #1f6b45;
+  --color-primary-hover: #175536;
+  --color-primary-fg: #ffffff;
+
+  /* Feedback */
+  --color-danger: #9b1c1c;
+  --color-danger-bg: #fdf2f2;
+  --color-success: #1f6b45;
+  --color-success-bg: #f1f8f4;
+
+  /* Money always reads unambiguously — see the PRD design principles. */
+  --color-credit: #1f6b45;
+  --color-debit: #9b1c1c;
+
+  /* Type scale (modular, 1.25) */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.953rem;
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  --radius: 8px;
+  --radius-sm: 4px;
+
+  /* WCAG 2.2 target size: 44px minimum for anything tappable. */
+  --tap-target: 44px;
+
+  --shadow-sm: 0 1px 2px rgb(20 32 26 / 8%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #101613;
+    --color-surface: #18211c;
+    --color-border: #2c3a32;
+    --color-fg: #eef2ef;
+    --color-fg-muted: #a5b1aa;
+
+    --color-primary: #57b083;
+    --color-primary-hover: #6cc496;
+    --color-primary-fg: #0b1210;
+
+    --color-danger: #f28b82;
+    --color-danger-bg: #2a1717;
+    --color-success: #57b083;
+    --color-success-bg: #14251c;
+
+    --color-credit: #57b083;
+    --color-debit: #f28b82;
+  }
+}

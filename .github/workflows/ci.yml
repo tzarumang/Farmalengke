@@ -1,0 +1,111 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A pushed branch supersedes its own in-flight run; nothing is gained by finishing
+# a check against a commit that has already been replaced.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    name: Typecheck, lint, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` runs an audit by default (`npm config get audit` is true), which
+      # means an npm advisory-service outage can wedge this job even though it has
+      # nothing to do with auditing. Dependency auditing lives in its own workflow.
+      - run: npm ci --no-audit
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          # Build-time placeholders. These are the public values only — the build
+          # must never need a secret, and CI would be the wrong place to hold one.
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: build-placeholder-anon-key
+
+  database:
+    name: Migrations and row-level security
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install psql
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Apply migrations and run the RLS tests
+        run: ./scripts/test-db.sh
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+
+  secrets:
+    name: No committed secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if a real env file or key material is committed
+        run: |
+          set -euo pipefail
+
+          # .env.example is the only env file that belongs in git.
+          if git ls-files --error-unmatch '.env' '.env.local' '.env.production' 2>/dev/null; then
+            echo "::error::A real .env file is committed. Only .env.example belongs in git."
+            exit 1
+          fi
+
+          # A Supabase secret key, or any PEM private key, must never be in the tree.
+          if git grep -nIE 'sb_secret_[A-Za-z0-9_-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----' \
+               -- ':!*.example' ':!.github/workflows/*'; then
+            echo "::error::Possible secret or private key committed."
+            exit 1
+          fi
+
+          # A Stellar secret seed is 56 chars starting with S. A user's wallet key must
+          # never reach this codebase at all (PRD RISK-10, and the Web3 key rule).
+          if git grep -nIE '\bS[A-Z2-7]{55}\b' -- ':!*.md'; then
+            echo "::error::Possible Stellar secret seed committed."
+            exit 1
+          fi
+
+          echo "No committed secrets found."
