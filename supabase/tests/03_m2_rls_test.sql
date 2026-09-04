@@ -216,10 +216,11 @@ begin
   call pg_temp.become('aaaaaaaa-0000-0000-0000-000000000001');
 
   insert into public.produce_listings
-    (farmer_id, farm_id, commodity_id, quantity, unit_code, availability, status)
+    (farmer_id, farm_id, commodity_id, quantity, unit_code, availability, status,
+     asking_price)
   values ('aaaaaaaa-0000-0000-0000-000000000001', v_farm,
           (select id from public.commodities where code = 'cabbage'),
-          120, 'kg', 'available_now', 'active')
+          120, 'kg', 'available_now', 'active', 30)
   returning id into v_listing;
 
   reset role;
@@ -287,6 +288,8 @@ begin
   select id into v_farm from public.farms
    where farmer_id = 'aaaaaaaa-0000-0000-0000-000000000001';
 
+  -- Deliberately a draft with no price: a draft may be unpriced, and it must
+  -- stay invisible to buyers.
   insert into public.produce_listings
     (farmer_id, farm_id, commodity_id, quantity, unit_code, availability, status)
   values ('aaaaaaaa-0000-0000-0000-000000000001', v_farm,

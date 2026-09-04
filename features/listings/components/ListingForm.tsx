@@ -130,6 +130,16 @@ export function ListingForm({
       </div>
 
       <Field
+        id="askingPrice"
+        name="askingPrice"
+        label="Your price"
+        type="text"
+        inputMode="decimal"
+        hint="Pesos per unit you are selling in. Check the price page to see what the platform is paying."
+        error={state.fieldErrors?.askingPrice}
+      />
+
+      <Field
         id="claimedGrade"
         name="claimedGrade"
         label="Quality (optional)"

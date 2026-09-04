@@ -38,3 +38,5 @@ not a clarification.
 | D2 | "Future betting" means **forward contracts** — commercial supply agreements, not tradable instruments | FR-10 to FR-12; §6 out-of-scope items 1 and 2; RISK-7 |
 | D3 | Vault holds a **Stellar stablecoin, platform-custodied** | FR-24 to FR-30; RISK-1, RISK-3, RISK-4; Q6 and Q8 |
 | D4 | **Philippines first**, architected for later expansion | §8 localization and privacy NFRs; GDPR-equivalent rights from day 1 |
+| D5 | A marketplace order transacts at **the farmer's asking price**, not the platform's published price | FR-5 amended to carry a price; FR-8 and FR-9 scope-noted. Recorded 2026-09-04 |
+| D6 | MVP covers **both** Cordillera and Central Luzon | Answer to Q10. Widens §6, which scopes the MVP to one region and five commodities — implies two pilot sites at M7 |

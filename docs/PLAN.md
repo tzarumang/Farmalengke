@@ -3,23 +3,24 @@
 Working plan for delivery. The authoritative scope is [`PRD.md`](../PRD.md); this tracks
 what is being built right now and what comes next.
 
-## Now (this slice) — M2 slice 1: farms and produce listings
+## Now (this slice) — M2 slice 2: pricing, browse and orders
 
-**Done = a farmer registers a farm and lists produce from it, with the database
-enforcing ownership, consent, and unit conversion.**
+**Done = the trading desk publishes a price, a farmer sees it and prices their own
+produce, a buyer finds and orders it, and each farmer confirms their own part.**
 
-- [x] Reference data: two regions, nine commodities, trade units with per-commodity
-      and per-region kilogram conversions
-- [x] Farm records (FR-3) — barangay by default, GPS only with recorded consent
-- [x] Produce listings (FR-5) — draft or offered, quantity normalised to kilograms
-- [x] Offline-tolerant capture: device-generated references make a repeated sync
-      idempotent rather than duplicating
-- [x] Row-level security and constraint tests for everything above
+- [x] Platform buying prices (FR-9) — per commodity, grade and region, schedulable
+      ahead, append-only, every publication attributed
+- [x] Farmer price view (FR-6) — current bid, 7-day range, source and timestamp on
+      every figure, stale after 48 hours
+- [x] Asking price on listings (FR-5 as amended) — a draft may be unpriced, an
+      offer may not
+- [x] Buyer browse with filters (FR-7)
+- [x] Orders (FR-8) — reservation, double-sell prevention, per-farmer confirmation,
+      lapsing when unanswered
+- [x] 31 further database assertions; 81 in total
 
 ## Next (ordered backlog)
 
-- [ ] **M2 slice 2 — buyer browse and order.** FR-7 to FR-9: browse and filter
-      active listings, place an order that reserves quantity, trading-desk pricing
 - [ ] **M2 slice 3 — tiered KYC.** FR-2. Thresholds come from the Q6 legal opinion,
       so the tiers are built but the numbers stay configuration
 - [ ] **M2 slice 4 — cooperative accounts.** FR-4: group registration, member
@@ -28,6 +29,16 @@ enforcing ownership, consent, and unit conversion.**
       (FR-13 to FR-16), including offline capture and conflict-surfacing sync
 - [ ] **M5 — Logistics.** Provider onboarding, job assignment, tracking, proof of
       delivery (FR-17 to FR-20)
+
+### Carried from this slice
+
+- [ ] **Schedule the lapse sweep.** `expire_lapsed_reservations()` is called
+      opportunistically before reads, so nothing ever *displays* as pending past its
+      deadline. A deployed instance should also run it on a schedule (pg_cron) so
+      listings free up without waiting for someone to look
+- [ ] **Notify farmers of a reservation.** FR-8 says the farmer "is notified"; today
+      they see it on the orders page. SMS or push needs the provider decision in Q8
+- [ ] **Partial reservation**, if the pilot shows whole-listing is too coarse
 
 ## Blocked
 
@@ -54,6 +65,9 @@ enforcing ownership, consent, and unit conversion.**
 | Vault seam | M1 defines *who* may act and records *what* they did; it holds no funds | Building custody before the legal opinion (Q6) risks an unusable system |
 | Regions | Both Cordillera and Central Luzon | Client answer to Q10. Widens PRD §6, which scopes the MVP to one region — see the note below |
 | Commodities | Nine, seeded as reference rows rather than an enum | Changing the set is a data change, not a migration |
+| Order price | The farmer's asking price, not the platform's published price | Client decision D5. FR-5 amended to carry a price |
+| Reservation | Whole-listing | FR-8 aggregates listings rather than splitting them; partial reservation needs quantity bookkeeping this slice does not have |
+| Order write path | `place_order()` and `respond_to_order_line()` are SECURITY DEFINER; the tables carry no write policy | The reservation invariants span several statements, so the function is the only way in and owns the authorisation it bypasses |
 | Unit conversions | Only the kilogram identity is seeded | A sack weight nobody has measured is an invented number in front of a farmer. Operations records the real ones (Q11) |
 | Branding | Neutral accessible tokens | No brand exists yet (PRD Q9); tokens swap without touching components |
 
