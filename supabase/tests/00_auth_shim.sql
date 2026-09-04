@@ -57,3 +57,39 @@ grant select on auth.users   to authenticated, service_role;
 -- a broad grant, narrowed by policy.
 alter default privileges in schema public
   grant select, insert, update, delete on tables to anon, authenticated;
+
+-- Supabase Storage, reduced to what the document policies touch. Without this the
+-- policies guarding identity documents would be written but never exercised, and
+-- those are the ones it matters most to get right.
+create schema if not exists storage;
+
+create table if not exists storage.buckets (
+  id      text primary key,
+  name    text not null,
+  public  boolean not null default false
+);
+
+create table if not exists storage.objects (
+  id         uuid primary key default gen_random_uuid(),
+  bucket_id  text not null references storage.buckets (id),
+  name       text not null,
+  owner      uuid,
+  created_at timestamptz not null default now()
+);
+
+-- Supabase ships storage.objects with RLS on. Without this the policies would
+-- be present but unenforced, and the tests would pass a check that does nothing.
+alter table storage.objects enable row level security;
+
+grant usage on schema storage to anon, authenticated, service_role;
+grant select, insert, update, delete on storage.objects to authenticated;
+grant select on storage.buckets to authenticated;
+
+-- Supabase splits an object path on '/' for use in policies.
+create or replace function storage.foldername(name text)
+returns text[]
+language sql
+immutable
+as $$
+  select string_to_array(name, '/');
+$$;

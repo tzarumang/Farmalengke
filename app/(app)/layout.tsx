@@ -18,6 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const canBuy =
     roles.includes('buyer') || roles.includes('trading_desk') || roles.includes('admin');
   const isTradingDesk = roles.includes('trading_desk') || roles.includes('admin');
+  const isCompliance = roles.includes('compliance') || roles.includes('admin');
 
   return (
     <>
@@ -32,6 +33,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {canBuy ? <Link href="/market">Market</Link> : null}
         <Link href="/orders">Orders</Link>
         {isTradingDesk ? <Link href="/trading/prices">Publish prices</Link> : null}
+        {isCompliance ? <Link href="/compliance/kyc">Verification queue</Link> : null}
+        <Link href="/verify">Verification</Link>
         <Link href="/profile">Profile</Link>
       </nav>
       {children}

@@ -7,6 +7,18 @@ import { createClient } from '@/lib/supabase/server';
 
 import { placeOrderSchema } from './schema';
 
+/**
+ * Whether a database error is a verification ceiling, whose message is written
+ * for the person who hit it.
+ */
+function isVerificationBlock(message: string): boolean {
+  return (
+    /not verified yet/i.test(message) ||
+    /allows up to/i.test(message) ||
+    /in 30 days/i.test(message)
+  );
+}
+
 export interface PlaceOrderState {
   error?: string;
   orderId?: string;
@@ -58,6 +70,11 @@ export async function placeOrder(
   });
 
   if (error) {
+    // A verification block is already a sentence written for the person reading
+    // it, naming the limit and the document that lifts it — FR-2 requires exactly
+    // that, so it is passed through rather than flattened into a generic failure.
+    if (isVerificationBlock(error.message)) return { error: error.message };
+
     // "No longer available" is the ordinary race, not a fault: somebody else
     // reserved it while this buyer was deciding. Say that, rather than "error".
     const message = /no longer available/i.test(error.message)
@@ -98,6 +115,8 @@ export async function respondToOrderLine(
   });
 
   if (error) {
+    if (isVerificationBlock(error.message)) return { error: error.message };
+
     const message = /window has closed/i.test(error.message)
       ? 'The time to answer this order has passed, so it went back on the market.'
       : /already been answered/i.test(error.message)
