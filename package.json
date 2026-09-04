@@ -14,7 +14,7 @@
     "db:start": "supabase start",
     "db:reset": "supabase db reset",
     "db:test": "./scripts/test-db.sh",
-    "verify": "npm run typecheck && npm run lint && npm run build"
+    "verify": "npm run build && npm run typecheck && npm run lint"
   },
   "dependencies": {
     "@supabase/ssr": "0.7.0",

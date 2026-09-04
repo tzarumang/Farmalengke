@@ -31,12 +31,9 @@ jobs:
       # nothing to do with auditing. Dependency auditing lives in its own workflow.
       - run: npm ci --no-audit
 
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Lint
-        run: npm run lint
-
+      # Build first. `typedRoutes` generates the route types that make a bad
+      # Link href a type error, so a typecheck before the build silently skips
+      # exactly the checks that config was turned on for.
       - name: Build
         run: npm run build
         env:
@@ -44,6 +41,12 @@ jobs:
           # must never need a secret, and CI would be the wrong place to hold one.
           NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
           NEXT_PUBLIC_SUPABASE_ANON_KEY: build-placeholder-anon-key
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
 
   database:
     name: Migrations and row-level security

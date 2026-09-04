@@ -3,29 +3,29 @@
 Working plan for delivery. The authoritative scope is [`PRD.md`](../PRD.md); this tracks
 what is being built right now and what comes next.
 
-## Now (this slice) — M1 Foundation
+## Now (this slice) — M2 slice 1: farms and produce listings
 
-**Done = a farmer can sign up with a mobile number, land on their profile, and the whole
-path is enforced by the database and recorded in an immutable audit trail.**
+**Done = a farmer registers a farm and lists produce from it, with the database
+enforcing ownership, consent, and unit conversion.**
 
-- [x] Repository structure, TypeScript, Next.js App Router scaffold
-- [x] Validated server-only configuration; `.env.example` only, no secrets committed
-- [x] Schema: profiles, role assignment, audit log
-- [x] Row-level security on every table, deny-by-default, with policies proven by tests
-- [x] Roles in the JWT via a custom access token hook (not user-editable metadata)
-- [x] Append-only audit logging, enforced by grants and triggers, not convention
-- [x] Phone OTP auth (provider-agnostic — works against the local stack, needs only
-      credentials to go live)
-- [x] Design tokens and accessible UI primitives with real loading/empty/error states
-- [x] CI: typecheck, lint, build, and a migration + RLS test run
+- [x] Reference data: two regions, nine commodities, trade units with per-commodity
+      and per-region kilogram conversions
+- [x] Farm records (FR-3) — barangay by default, GPS only with recorded consent
+- [x] Produce listings (FR-5) — draft or offered, quantity normalised to kilograms
+- [x] Offline-tolerant capture: device-generated references make a repeated sync
+      idempotent rather than duplicating
+- [x] Row-level security and constraint tests for everything above
 
 ## Next (ordered backlog)
 
-- [ ] **M2 — Farmer & listing.** Tiered KYC (FR-2), farm records (FR-3), cooperative
-      accounts (FR-4), produce listings (FR-5), price display (FR-6), buyer browse and
-      order (FR-7 to FR-9)
-- [ ] **M3 — Bagsakan operations.** Intake, grading, inventory, write-off (FR-13 to
-      FR-16), including offline capture and conflict-surfacing sync
+- [ ] **M2 slice 2 — buyer browse and order.** FR-7 to FR-9: browse and filter
+      active listings, place an order that reserves quantity, trading-desk pricing
+- [ ] **M2 slice 3 — tiered KYC.** FR-2. Thresholds come from the Q6 legal opinion,
+      so the tiers are built but the numbers stay configuration
+- [ ] **M2 slice 4 — cooperative accounts.** FR-4: group registration, member
+      invitations, consolidated listings
+- [ ] **M3 — Bagsakan operations.** Intake, grading, inventory, write-off
+      (FR-13 to FR-16), including offline capture and conflict-surfacing sync
 - [ ] **M5 — Logistics.** Provider onboarding, job assignment, tracking, proof of
       delivery (FR-17 to FR-20)
 
@@ -52,8 +52,19 @@ path is enforced by the database and recorded in an immutable audit trail.**
 | Roles | Injected into the JWT by a custom access token hook, read from `app_metadata` | `user_metadata` is user-editable and unsafe to authorize from |
 | Audit | Append-only by `REVOKE` + trigger + no RLS write policy | FR-28 requires records no role can edit, including administrators |
 | Vault seam | M1 defines *who* may act and records *what* they did; it holds no funds | Building custody before the legal opinion (Q6) risks an unusable system |
-| Location | Barangay text by default, no GPS column yet | PRD §9 data minimisation; GPS needs explicit per-farm consent (M2) |
+| Regions | Both Cordillera and Central Luzon | Client answer to Q10. Widens PRD §6, which scopes the MVP to one region — see the note below |
+| Commodities | Nine, seeded as reference rows rather than an enum | Changing the set is a data change, not a migration |
+| Unit conversions | Only the kilogram identity is seeded | A sack weight nobody has measured is an invented number in front of a farmer. Operations records the real ones (Q11) |
 | Branding | Neutral accessible tokens | No brand exists yet (PRD Q9); tokens swap without touching components |
+
+## Open scope note
+
+PRD §6 scopes the MVP to a **single bagsakan site, single region, five
+commodities**. The answer to Q10 selected **both** regions, which is nine
+commodities across two. That is a deliberate client decision, recorded here rather
+than silently absorbed: it widens the MVP boundary and, downstream, implies two
+pilot sites at M7 instead of one. Worth confirming that consequence is intended
+before M7 planning.
 
 ## Verification note
 
