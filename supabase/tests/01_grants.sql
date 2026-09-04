@@ -51,3 +51,14 @@ grant execute on function public.kyc_ceiling_breach(uuid, numeric) to authentica
 grant execute on function public.transacted_last_30_days(uuid) to authenticated;
 grant execute on function public.submit_kyc(uuid) to authenticated;
 grant execute on function public.review_kyc(uuid, boolean, text) to authenticated;
+
+-- M2 slice 4.
+grant select, insert, update, delete on public.cooperatives            to authenticated;
+grant select, insert, update, delete on public.cooperative_memberships to authenticated;
+grant select, insert, update, delete on public.listing_contributions   to authenticated;
+
+grant execute on function public.is_cooperative_member(uuid, uuid) to authenticated;
+grant execute on function public.is_cooperative_officer(uuid, uuid) to authenticated;
+grant execute on function public.respond_to_invitation(uuid, boolean) to authenticated;
+grant execute on function public.leave_cooperative(uuid) to authenticated;
+grant execute on function public.group_ceiling_breach(uuid, numeric) to authenticated;

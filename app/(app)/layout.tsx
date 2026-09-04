@@ -28,6 +28,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <Link href="/farms">Farms</Link>
             <Link href="/listings">Produce</Link>
             <Link href="/prices">Prices</Link>
+            <Link href="/cooperative">Group</Link>
           </>
         ) : null}
         {canBuy ? <Link href="/market">Market</Link> : null}

@@ -1,0 +1,23 @@
+.section { margin-bottom: var(--space-8); }
+
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+  background: var(--color-surface);
+}
+
+.meta { color: var(--color-fg-muted); margin-bottom: var(--space-4); }
+
+.members { list-style: none; margin: 0 0 var(--space-6); padding: 0; }
+
+.member {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.status { color: var(--color-fg-muted); font-size: var(--text-sm); flex: none; }

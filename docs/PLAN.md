@@ -3,25 +3,26 @@
 Working plan for delivery. The authoritative scope is [`PRD.md`](../PRD.md); this tracks
 what is being built right now and what comes next.
 
-## Now (this slice) — M2 slice 3: tiered verification
+## Now (this slice) — M2 slice 4: cooperative accounts
 
-**Done = a farmer sends what they have, compliance decides with their name on it,
-and the tier that decision grants is what the transaction ceilings enforce.**
+**Done = farmers can sell as a group without any one of them becoming a way
+round the verification the others were held to.**
 
-- [x] Tiered KYC (FR-2) — tier 1 asks for a photograph, tier 2 for a government
-      ID and a selfie, with the requirements held as data so the interface and
-      the completeness check read the same list
-- [x] Identity documents in a private bucket, readable only by their subject and
-      compliance, with signed URLs that expire in 60 seconds
-- [x] Per-transaction **and** rolling 30-day ceilings, enforced on both sides of a
-      trade: the buyer when they place, the farmer when they accept
-- [x] Every decision timestamped and attributable; a rejection must say why
-- [x] 35 further database assertions; 116 in total
+- [x] Cooperative registration, officer-run, with invitations a member accepts or
+      declines (FR-4)
+- [x] Consolidated listings: contributions must sum to the listing quantity before
+      it can be offered, so a group listing never claims volume nobody pledged
+- [x] **Each member's share is checked against their own KYC ceiling**, not the
+      officer's — prorated by the kilograms they contributed. The refusal names who
+- [x] Members keep their own farms, their own records and their own tier; the
+      cooperative aggregates the sale, not the identities
+- [x] 22 further database assertions; 138 in total
+
+M2 is complete: farm records and listings, priced marketplace orders, tiered
+verification, and cooperative accounts.
 
 ## Next (ordered backlog)
 
-- [ ] **M2 slice 4 — cooperative accounts.** FR-4: group registration, member
-      invitations, consolidated listings
 - [ ] **M3 — Bagsakan operations.** Intake, grading, inventory, write-off
       (FR-13 to FR-16), including offline capture and conflict-surfacing sync
 - [ ] **M5 — Logistics.** Provider onboarding, job assignment, tracking, proof of
@@ -41,6 +42,11 @@ and the tier that decision grants is what the transaction ceilings enforce.**
 - [ ] **Schedule the lapse sweep** (from slice 2)
 - [ ] **Notify farmers of a reservation** (from slice 2)
 - [ ] **Partial reservation**, if the pilot shows whole-listing is too coarse
+- [ ] **A cooperative's proceeds are not split.** The order pays for the listing;
+      dividing that between contributors by their kilograms is settlement work,
+      and settlement waits on the Vault (Q6)
+- [ ] **Nobody is told they were invited to a cooperative.** They see it on the
+      cooperative page — the same Q8 provider gap as FR-8 and KYC decisions
 
 ## Blocked
 
@@ -73,6 +79,8 @@ and the tier that decision grants is what the transaction ceilings enforce.**
 | Reservation | Whole-listing | FR-8 aggregates listings rather than splitting them; partial reservation needs quantity bookkeeping this slice does not have |
 | Order write path | `place_order()` and `respond_to_order_line()` are SECURITY DEFINER; the tables carry no write policy | The reservation invariants span several statements, so the function is the only way in and owns the authorisation it bypasses |
 | Unit conversions | Only the kilogram identity is seeded | A sack weight nobody has measured is an invented number in front of a farmer. Operations records the real ones (Q11) |
+| Group ceilings | Prorated per member, checked against each member's own tier | Checking only the officer would make a cooperative a route round verification; FR-4's "identities stay separate" points the same way |
+| Officer exit | An officer cannot leave while they are the only one | Leaving would orphan the group and its listings |
 | Branding | Neutral accessible tokens | No brand exists yet (PRD Q9); tokens swap without touching components |
 
 ## Open scope note
