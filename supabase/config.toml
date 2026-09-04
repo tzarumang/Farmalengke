@@ -1,0 +1,61 @@
+# Supabase local development configuration.
+#
+# The deployed platform is self-hosted (PRD section 10); this file configures the
+# local stack that `npm run db:start` brings up, so a developer's environment matches
+# the migrations in this repository.
+
+project_id = "farmalengke"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["http://127.0.0.1:3000"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+
+# FR-1: farmers sign up with a mobile number, not an email address.
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = false
+enable_confirmations = false
+
+[auth.sms]
+enable_signup = true
+enable_confirmations = true
+# Local development prints the OTP to the auth container log instead of sending an
+# SMS, so the real flow can be exercised without a paid provider. Configure a real
+# provider (Twilio, Vonage, MessageBird) for any deployed environment.
+test_otp = ""
+
+[auth.sms.twilio]
+enabled = false
+account_sid = ""
+message_service_sid = ""
+# Read from the environment, never committed.
+auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+
+# Injects role grants into the access token, so authorization reads app_metadata
+# rather than the user-editable user_metadata. See migration 20260904000100.
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/custom_access_token_hook"
+
+[analytics]
+enabled = false
