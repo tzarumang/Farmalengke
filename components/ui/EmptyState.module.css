@@ -1,0 +1,22 @@
+.empty {
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  background: var(--color-surface);
+}
+
+.title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+}
+
+.body {
+  color: var(--color-fg-muted);
+  margin-bottom: var(--space-4);
+}
+
+.action {
+  display: flex;
+  justify-content: center;
+}
